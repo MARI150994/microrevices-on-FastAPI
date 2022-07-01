@@ -18,4 +18,5 @@ class User(Base):
 
 class Token(Base):
     token = Column(String)
+    user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship('User', uselist=False, back_populates='token')

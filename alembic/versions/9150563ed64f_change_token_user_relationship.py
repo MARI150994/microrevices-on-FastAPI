@@ -1,8 +1,8 @@
-"""Create token table
+"""Change token-user relationship
 
-Revision ID: 09d4b39c8603
+Revision ID: 9150563ed64f
 Revises: dc3022f9a59e
-Create Date: 2022-07-01 10:54:21.011429
+Create Date: 2022-07-01 11:23:09.277917
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '09d4b39c8603'
+revision = '9150563ed64f'
 down_revision = 'dc3022f9a59e'
 branch_labels = None
 depends_on = None
@@ -21,6 +21,8 @@ def upgrade():
     op.create_table('token',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('token', sa.String(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###

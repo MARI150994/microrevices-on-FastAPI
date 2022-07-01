@@ -1,4 +1,4 @@
-from .user import User
+from .user import User, Token
 from .base import Base
 
 __all__ = (

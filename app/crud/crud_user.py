@@ -1,9 +1,12 @@
+from datetime import timedelta
 from typing import Optional
 
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
 from app import models, schemas
+from app.core import security
 
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
@@ -36,3 +39,16 @@ def authenticate(db: Session,
     if not verify_password(password, user.hashed_password):
         return None
     return user
+
+
+def create_token(db: Session, user_id: int) -> models.Token:
+    token_obj = db.query(models.Token).filter(models.Token.user_id == user_id).first()
+    if token_obj:
+        return token_obj
+    token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    token: str = security.create_token(user_id, expires=token_expires)
+    token_obj = models.Token(user_id=user_id, token=token)
+    db.add(token_obj)
+    db.commit()
+    db.refresh(token_obj)
+    return token_obj

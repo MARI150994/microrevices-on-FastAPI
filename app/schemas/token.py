@@ -8,8 +8,11 @@ class TokenBase(BaseModel):
 
 
 class TokenCreate(TokenBase):
-    user:
+    user_id: int
 
-class TokenData(BaseModel):
-    user_id: Optional[int] = None
 
+# Return to client
+class Token(TokenBase):
+
+    class Config:
+        orm_mode = True

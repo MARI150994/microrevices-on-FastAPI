@@ -12,7 +12,6 @@ from app import models
 from app.core import security
 from app.schemas import Token
 from app.crud import get_user_by_email
-from app.schemas import To
 
 oauth_scheme = OAuth2PasswordBearer(
     tokenUrl=f'{settings.API_URL_PREFIX}/login/token'

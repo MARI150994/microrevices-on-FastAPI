@@ -33,6 +33,8 @@ def create_user(db: Session, user_in: schemas.UserCreate) -> models.User:
 def authenticate(db: Session,
                  email: str,
                  password: str) -> Optional[models.User]:
+    print('IN AUTHENTICATE, email, password', email, password)
+    # TODO join Token
     user = get_user_by_email(db, email)
     if not user:
         return None
@@ -52,3 +54,11 @@ def create_token(db: Session, user_id: int) -> models.Token:
     db.commit()
     db.refresh(token_obj)
     return token_obj
+
+
+def get_user_by_token(db: Session, token: str) -> models.User:
+    token_obj = db.query(models.Token).filter(token == token).first()
+    if not token_obj:
+        return None
+    user_obj = db.query(models.User).filter(models.User.id == token_obj.user_id).first()
+    return user_obj

@@ -9,12 +9,10 @@ import jwt
 from app.models.db import SessionLocal
 from app.core.config import settings
 from app import models
-from app.core import security
-from app.schemas import Token
-from app.crud import get_user_by_email
+from app.crud import get_user_by_token
 
 oauth_scheme = OAuth2PasswordBearer(
-    tokenUrl=f'{settings.API_URL_PREFIX}/login/token'
+    tokenUrl=f'/login/token'
 )
 
 
@@ -25,13 +23,11 @@ def get_db() -> Generator:
     finally:
         db.close()
 
-#
-# def get_current_user(db: Session = Depends(get_db),
-#                      token: str = Depends(oauth_scheme)) -> models.User:
-#     try:
-#         payload = jwt.decode(token, settings.SECRET_KEY,
-#                    algorithms=[security.ALGORITHM])
-#         token_data = To
-#     except jwt.PyJWTError:
-#         raise HTTPException(status_code=404, detail='User does not exist')
-#     user =
+
+def get_current_user(
+        db: Session = Depends(get_db), token: str = Depends(oauth_scheme)
+) -> models.User:
+    user = get_user_by_token(db, token)
+    if not user:
+        raise HTTPException(status_code=404, detail={'Invalid token'})
+    return user

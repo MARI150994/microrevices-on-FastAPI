@@ -9,6 +9,10 @@ from app import models, schemas
 from app.core import security
 
 
+def get_user_by_id(db: Session, id: int):
+    return db.query(models.User).filter(id == id).first()
+
+
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.User).offset(skip).limit(limit).all()
 
@@ -33,32 +37,9 @@ def create_user(db: Session, user_in: schemas.UserCreate) -> models.User:
 def authenticate(db: Session,
                  email: str,
                  password: str) -> Optional[models.User]:
-    print('IN AUTHENTICATE, email, password', email, password)
-    # TODO join Token
     user = get_user_by_email(db, email)
     if not user:
         return None
     if not verify_password(password, user.hashed_password):
         return None
     return user
-
-
-def create_token(db: Session, user_id: int) -> models.Token:
-    token_obj = db.query(models.Token).filter(models.Token.user_id == user_id).first()
-    if token_obj:
-        return token_obj
-    token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    token: str = security.create_token(user_id, expires=token_expires)
-    token_obj = models.Token(user_id=user_id, token=token)
-    db.add(token_obj)
-    db.commit()
-    db.refresh(token_obj)
-    return token_obj
-
-
-def get_user_by_token(db: Session, token: str) -> models.User:
-    token_obj = db.query(models.Token).filter(token == token).first()
-    if not token_obj:
-        return None
-    user_obj = db.query(models.User).filter(models.User.id == token_obj.user_id).first()
-    return user_obj

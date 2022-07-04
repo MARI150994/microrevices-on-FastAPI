@@ -3,16 +3,10 @@ from typing import Optional, List, Union
 from pydantic import BaseModel, EmailStr
 
 
-class TokenBase(BaseModel):
-    token: str
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
 
-class TokenCreate(TokenBase):
-    user_id: int
-
-
-# Return to client
-class Token(TokenBase):
-
-    class Config:
-        orm_mode = True
+class TokenPayload(BaseModel):
+    subject: Optional[int] = None

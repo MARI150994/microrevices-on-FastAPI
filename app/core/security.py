@@ -20,7 +20,10 @@ def verify_password(password_in: str, hashed_password: str) -> bool:
 ALGORITHM = "HS256"
 
 
-def create_token(subject: str, expires: timedelta) -> str:
+def create_token(
+        subject: str,
+        expires: timedelta = settings.ACCESS_TOKEN_EXPIRE_MINUTES
+) -> str:
     to_encode = {'exp': str(expires), 'sender': str(subject)}
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt

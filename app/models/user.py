@@ -13,10 +13,3 @@ class User(Base):
     is_admin = Column(Boolean(), default=False)
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
-    token = relationship('Token', uselist=False, back_populates='user')
-
-
-class Token(Base):
-    token = Column(String)
-    user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship('User', uselist=False, back_populates='token')

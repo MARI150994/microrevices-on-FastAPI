@@ -17,6 +17,7 @@ def read_users(
         limit: int = 100,
 ):
     users = crud.get_users(db, skip=skip, limit=limit)
+    return users
 
 
 @router.post('/', response_model=schemas.User)

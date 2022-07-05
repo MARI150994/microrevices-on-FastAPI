@@ -3,7 +3,7 @@ from typing import Optional, Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import schemas, crud
 from app.api.deps import get_db
@@ -17,12 +17,12 @@ router = APIRouter()
 
 # Create/return token for user (if it exists)
 @router.post('/login/token', response_model=schemas.Token)
-def login_token(
-        db: Session = Depends(get_db),
+async def login_token(
+        db: AsyncSession = Depends(get_db),
         form_data: OAuth2PasswordRequestForm = Depends()
 ) -> Any:
     # check if user exists and password correct
-    user = crud.authenticate(
+    user = await crud.authenticate(
         db, email=form_data.username, password=form_data.password
     )
     if not user:
@@ -36,5 +36,5 @@ def login_token(
 
 
 @router.post('/login/me', response_model=schemas.User)
-def test_token(current_user: User = Depends(get_current_user)):
+async def test_token(current_user: User = Depends(get_current_user)):
     return current_user

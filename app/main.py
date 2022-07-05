@@ -2,9 +2,9 @@ import uvicorn
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
-#
-# from app.db import Base
-from app.models.db import engine, SessionLocal
+
+from app.models import Base
+from app.models.db import engine
 from app.api.api import api_router
 
 app = FastAPI()
@@ -16,6 +16,11 @@ app.include_router(api_router)
 # @app.get("/")
 # async def root():
 #     return FileResponse('static/index.html')
+
+async def init_models():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
 
 
 @app.websocket('/ws')

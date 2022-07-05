@@ -1,13 +1,14 @@
 from datetime import timedelta
 from typing import Generator
 
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from fastapi import Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 import jwt
 
 from app.core import security
-from app.models.db import SessionLocal
+from app.models.db import async_session
 from app.core.config import settings
 from app import models, schemas, crud
 
@@ -16,16 +17,13 @@ oauth_scheme = OAuth2PasswordBearer(
 )
 
 
-def get_db() -> Generator:
-    try:
-        db = SessionLocal()
-        yield db
-    finally:
-        db.close()
+async def get_db() -> AsyncSession:
+    async with async_session() as session:
+        yield session
 
 
-def get_current_user(
-        db: Session = Depends(get_db), token: str = Depends(oauth_scheme)
+async def get_current_user(
+        db: AsyncSession = Depends(get_db), token: str = Depends(oauth_scheme)
 ) -> models.User:
     try:
         print('TOKEN', token)
@@ -39,7 +37,7 @@ def get_current_user(
             status_code=status.HTTP_403_FORBIDDEN,
             detail='Invalid token'
         )
-    user = crud.get_user_by_id(db, id=token_data.subject)
+    user = await crud.get_user_by_id(db, id=token_data.subject)
     if not user:
         raise HTTPException(
             status_code=404,

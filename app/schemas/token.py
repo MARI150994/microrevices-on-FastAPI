@@ -9,4 +9,4 @@ class Token(BaseModel):
 
 
 class TokenPayload(BaseModel):
-    subject: Optional[int] = None
+    sender: Optional[int] = None

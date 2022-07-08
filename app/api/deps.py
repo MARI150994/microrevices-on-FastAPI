@@ -32,12 +32,11 @@ async def get_current_user(
         print('TOKEN PAYLOAD', token_payload)
         token_data = schemas.TokenPayload(**token_payload)
     except (jwt.PyJWTError, ValueError) as e:
-        print('EXCEPTION FROM DEPS', e)
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail='Invalid token'
         )
-    user = await crud.get_user_by_id(db, id=token_data.subject)
+    user = await crud.get_user_by_id(db, id=token_data.sender)
     if not user:
         raise HTTPException(
             status_code=404,

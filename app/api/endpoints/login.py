@@ -31,7 +31,7 @@ async def login_token(
                             detail='Incorrect email or password')
     token = security.create_token(subject=user.id)
     # add in cache
-    r.set(token, int(user.is_admin))
+    await r.set(token, int(user.is_admin))
     return {
         'access_token': token,
         'token_type': 'bearer'

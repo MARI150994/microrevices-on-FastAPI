@@ -1,20 +1,31 @@
-import uvicorn
-from fastapi import FastAPI, WebSocket
-from fastapi.responses import HTMLResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
+import logging
 
-from app.models import Base
-from app.models.db import engine
+import uvicorn
+from fastapi import FastAPI
+
+from app.cache import r
+from app.models.db import database
 from app.api.api import api_router
 
 app = FastAPI()
 app.include_router(api_router)
 
 
-async def init_models():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
+@app.on_event('startup')
+async def startup():
+    logging.info('db connect start')
+    await database.connect()
+    logging.info('db connect finish')
+    logging.info('redis connect start')
+    await r.ping()
+    logging.info('redis connect finish')
+
+
+@app.on_event('shutdown')
+async def shutdown():
+    logging.info('db disconnect start')
+    await database.disconnect()
+    logging.info('db connect finish')
 
 
 if __name__ == '__main__':
